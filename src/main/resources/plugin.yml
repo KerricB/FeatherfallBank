@@ -1,0 +1,47 @@
+name: FeatherfallBank
+main: io.owlcraft.featherfallbank.FeatherfallBankPlugin
+version: 1.0.0
+api-version: '1.21'
+author: Eminus
+
+depend: [Vault]
+softdepend: [Essentials, EssentialsX, WorldGuard, PlaceholderAPI, Citizens, QuickShop, ChestShop]
+
+commands:
+  pouch:
+    description: Open pouch menu and utilities
+    usage: "/pouch | /pouch drop <amount>"
+    permission: featherfallbank.pouch
+    aliases: [wallet]
+
+  treasuryadmin:
+    description: Admin controls for FeatherfallBank
+    usage: "/treasuryadmin <set|give|take|top> ..."
+    permission: featherfallbank.admin
+
+  pouchadmin:
+    description: Admin pouch controls (FFB)
+    usage: "/pouchadmin <give|take|set> <player> <amount>"
+    permission: featherfallbank.admin
+    aliases: [ffba, ffbadmin, featherfallbankadmin]
+
+  # NEW: root command for info + admin forwarding
+  ffb:
+    description: FeatherfallBank info and shortcuts
+    usage: "/ffb [admin ...]"
+    aliases: [featherfallbank, fb]
+
+permissions:
+  featherfallbank.pouch:
+    default: true
+
+  featherfallbank.admin:
+    default: op
+
+  featherfallbank.viewtop:
+    default: true
+
+  # used by BellInteractListener for shift-right-click (un)register
+  ffb.teller.admin:
+    description: Register/unregister teller bells via shift-right-click
+    default: op

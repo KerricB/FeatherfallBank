@@ -1,0 +1,51 @@
+# ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+# ┃ FeatherfallBank · config.yml                                 ┃
+# ┃                                                              ┃
+# ┃ - Teller bells are stored under `tellers:` as "world:x:y:z"  ┃
+# ┃ - Sneak + Right-Click a bell (with permission                ┃
+# ┃   `ffb.teller.admin`, default OP) to (un)register it.        ┃
+# ┃ - Regular Right-Click on a registered bell opens the GUI.    ┃
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+config_version: 1
+
+# List of registered teller bells. Each entry = "worldName:x:y:z"
+# Example:
+# tellers:
+#   - world:0:64:0
+#   - world_nether:12:80:-45
+tellers: []
+
+# ── UI (optional knobs; current code uses hardcoded theme but
+#    keeping these here so you can wire them later if you like)
+ui:
+  main_title: "&6Featherfall &bTreasury"
+  show_glow_on_actions: true
+
+  # Optional sound hints for consistency in your menus/listeners.
+  sounds:
+    open: UI_TOAST_IN
+    click: UI_BUTTON_CLICK
+    success: ENTITY_EXPERIENCE_ORB_PICKUP
+    close: UI_TOAST_CHALLENGE_COMPLETE
+
+# ── Death/Pouch settings (purely informational unless your other
+#    listeners read them; safe defaults provided)
+death:
+  enabled: true
+  # Percent of pouch dropped on death outside safe zones.
+  drop_percent_outside_safe_zones: 50
+  currency_name: "Shillings"
+
+# ── Storage (TreasuryService writes to treasury.yml automatically)
+storage:
+  treasury_file: "treasury.yml"
+
+# ── Economy/Vault (informational)
+economy:
+  vault_provider_name: "FeatherfallBank"
+
+# ── Debug toggles (optional)
+debug:
+  log_bell_registration: true
+  log_menu_clicks: false

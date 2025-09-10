@@ -1,0 +1,41 @@
+# FeatherfallBank — default messages
+# Uses MiniMessage formatting (e.g., <gold>, <red>, <gray>).
+# Most lines are prefixed automatically with "prefix" if use_prefix: true.
+
+use_prefix: true
+prefix: "<gray>[</gray><gold>FeatherfallBank</gold><gray>]</gray> "
+
+pouch:
+  balance_self: "<aqua>Pouch</aqua>: <gold>{pouch}</gold> Ꞩ • <aqua>Treasury</aqua>: <gold>{treasury}</gold> Ꞩ"
+  balance_other: "<aqua>{player}</aqua> — <aqua>Pouch</aqua>: <gold>{pouch}</gold> Ꞩ • <aqua>Treasury</aqua>: <gold>{treasury}</gold> Ꞩ"
+
+  deposit_ok: "<green>Deposited</green> <gold>{amount}</gold> <yellow>{unit}</yellow> into your Treasury."
+  withdraw_ok: "<gold>Withdrew</gold> <gold>{amount}</gold> <yellow>{unit}</yellow> from your Treasury."
+  drop_ok: "<yellow>Dropped</yellow> <gold>{amount}</gold> <yellow>{unit}</yellow> nearby."
+
+  not_enough_pouch: "<red>Not enough in your pouch.</red>"
+  not_enough_treasury: "<red>Not enough in Treasury.</red>"
+  invalid_amount: "<red>Amount must be a positive number.</red>"
+  on_cooldown: "<gray>Slow down—please wait a moment.</gray>"
+  player_only: "<red>Players only.</red>"
+  no_permission: "<red>You don't have permission.</red>"
+
+gui:
+  opened: "<gold>Bank opened.</gold>"
+  denied_block: "<gray>That block isn't a teller.</gray>"
+  denied_location: "<gray>This bell isn't linked to a bank.</gray>"
+
+death:
+  dropped: "<red>You died and dropped</red> <gold>{amount}</gold> <yellow>{unit}</yellow> (<gray>{percent}% of your pouch</gray>)."
+  protected_zone: "<gray>Your pouch was protected in this safe zone.</gray>"
+
+admin:
+  set_ok: "<green>Set {player}'s Treasury to <gold>{amount}</gold> {unit}.</green>"
+  give_ok: "<green>Gave {player} <gold>{amount}</gold> {unit}.</green>"
+  take_ok: "<gold>Took {player} <gold>{amount}</gold> {unit}.</gold>"
+  top_header: "<aqua>Top Treasury Balances</aqua>"
+  top_entry: "<gray>#{rank} </gray><gold>{player}</gold><gray>: </gray><gold>{amount}</gold> <yellow>{unit}</yellow>"
+
+placeholders:
+  unit_singular: "Shilling"
+  unit_plural: "Shillings"
