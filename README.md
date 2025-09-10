@@ -1,164 +1,175 @@
+```markdown
 # FeatherfallBank
-*A clean, GUI-first economy layer for Paper 1.21.x*
 
-![mc-1.21.x](https://img.shields.io/badge/MC-1.21.x-blue)
-![platform-paper](https://img.shields.io/badge/Platform-Paper%20API-informational)
-![license-ARR](https://img.shields.io/badge/License-ARR-green)
-![status-stable](https://img.shields.io/badge/Status-Stable-success)
+[![Build](https://img.shields.io/badge/build-Maven-blue)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Modrinth](https://img.shields.io/badge/Modrinth-FeatherfallBank-1bd96a)](#)
 
-FeatherfallBank replaces fiddly commands with an intuitive **bell-triggered** bank GUI:
-**Balance • Deposit • Withdraw**. It enforces configurable “death tax,” integrates with
-**WorldGuard** safe zones, and ships with safe, sane defaults.
+A lightweight Vault economy plugin built for modern Paper servers that introduces **Shillings** as currency, a player **Pouch** wallet, and a region‑safe **Treasury** bank with polished GUIs.
 
+> **Design goals:** Simple setup, fun die‑drop mechanics, clear UX, and server‑friendly anti‑abuse protections.
 
 ---
 
 ## ✨ Features
-
-- **GUI-first**: Right-click a **bell** to open the bank.
-- **Player commands (optional convenience):**
-    - `/pouch` → Display Pouch Balance
-    - `/pouch drop <amount>` → Drop Specified amount from Pouch
-- **Safe-zone rules**: With WorldGuard regions, drop **0%** in protected areas.
-- **Death tax**: Configurable (default **50%**) pouch drop on death.
-- **Polished UX**: Button denominations with confirm/back; no item pickup in menus.
-- **SQLite by default**: Works out of the box; MySQL optional.
-- **PlaceholderAPI**: `%featherfallbank_balance%`, `%featherfallbank_currency%`.
-- **Anti-abuse**: Click-cancel in menus, spam debounce; (future) secure note NBT.
-- **Lightweight**: Minimal dependencies; sensible logging and telemetry toggles.
-
+- **Vault Economy Provider** — Registers a currency named **Shillings**, compatible with popular plugins via Vault.
+- **Pouch (wallet)** — A physical/virtual wallet with clear action‑bar pickup messages and itemized drops.
+- **Treasury (bank)** — Secure balance separate from the pouch; open via command or Teller block.
+- **Polished GUIs** — Clean Deposit/Withdraw menus (no item pickup exploits), responsive sound/feedback.
+- **Fair Death Penalty** — Drops **50%** of the Pouch on *any* death; configurable and safe‑zoned.
+- **Safe Zones** — Prevent drops in defined regions (e.g., spawn) with WorldGuard integration.
+- **Anti‑Abuse** — Pouches are hopper‑proof & fire‑proof; despawned pouch items are safely discarded.
+- **SQLite Storage** — Zero‑config default; future DB options planned.
+- **Admin Tools** — `/treasuryadmin set|give|take|top`, live reloading, and locale‑aware formatting.
 
 ---
 
-## 📦 Requirements
+## ✅ Requirements
+- **Server:** PaperMC 1.21.x (tested on 1.21.8)
+- **Dependencies:**
+  - **Vault** (required)
+  - **WorldGuard** (optional, for safe‑zone integration)
+  - **Citizens** (optional, planned Teller NPC integration)
 
-- **Paper** 1.21.x
-- *(Optional)* **WorldGuard** for safe-zones
-- *(Optional)* **PlaceholderAPI** for placeholders
-
----
-
-## 🔧 Installation
-
-1. Download the latest jar and drop it into `/plugins/`.
-2. Start your server once to generate configs.
-3. Edit `/plugins/FeatherfallBank/config.yml` and `messages.yml` as desired.
-4. Restart the server.
-
-On first run, the plugin also drops a `/plugins/FeatherfallBank/README-Server.md` quick-start
-for admins.
+> If you currently use **EssentialsX Economy**, remove the `EssentialsX-Economy` jar so FeatherfallBank is the sole Vault economy provider.
 
 ---
 
-## 🏦 Quickstart
+## 🚀 Installation
+1. Install **Vault** and (optionally) **WorldGuard**.
+2. Drop `FeatherfallBank-x.y.z.jar` into your `plugins/` folder.
+3. Start the server to generate config files.
+4. Verify with `/vault-info` that **FeatherfallBank** is the registered economy.
+5. (Optional) Configure safe regions and starting balance (see below), then `/treasuryadmin reload`.
 
-- Place a **Bell** in your Treasury area. (the bell's cords will need specified via the config.ym)
-- If you want region-restricted access, create a WorldGuard region (e.g., `OwlRun`) and set:
+---
 
-yaml
-```safe_zones:
-  enable_worldguard: true
-  regions: ["OwlRun", "Spawn"]
-gui:
-  open_via:
-    teller_block_types: ["BELL"]
-    require_worldguard_region: true
-    regions: ["OwlRun", "Spawn"]
+## 🔧 Configuration (config.yml)
+```yml
+# FeatherfallBank main configuration
+currency-name: "Shillings"
+currency-name-singular: "Shilling"
+starting-balance: 500
+
+formatting:
+  # e.g. 12,345 Shillings
+  use-locale-formatting: true
+
+pouch:
+  # Percentage of the pouch balance dropped on death (0.0 - 1.0)
+  death-drop-percent: 0.5
+  # If keepInventory is true, skip drops entirely
+  respect-keep-inventory: true
+  # Prevent hoppers from extracting pouch items
+  hopper-proof: true
+  # If a pouch item somehow despawns, delete rather than duping/crediting
+  despawn-deletes: true
+
+safe-zones:
+  enabled: true
+  # WorldGuard region names where pouch drops are disabled (no penalties)
+  regions:
+    - owlrun
+    - spawn
+
+# Treasury access
+treasury:
+  # Players can open via command regardless of region
+  allow-command-open: true
+  teller:
+    enabled: true
+    # Require player to stand in a region to open via teller block
+    require-region: true
+    regions:
+      - owlrun
+    # Block types that count as Tellers (choose one or add multiple)
+    blocks:
+      - LECTERN
+      - BELL
+
+# Admin & data
+storage:
+  type: SQLITE
+
+messages:
+  pickup: "+{amount} Shillings to your Pouch."
+  receipt-deposit: "Deposited {amount} Shillings to your Treasury."
+  receipt-withdraw: "Withdrew {amount} Shillings to your Pouch."
 ```
-Right-click the bell to open the bank GUI.
 
-⚙️ **Configuration Highlights**
-```yaml
-Copy code
-currency:
-  name_singular: "Shilling"
-  name_plural: "Shillings"
-  symbol: "Ꞩ"
-  format:
-    use_commas: true
-    decimal_places: 0
+---
 
-gui:
-  titles:
-    main: "<gold>Featherfall Bank</gold>"
-  denominations: [1, 5, 10, 50, 100, 1000]
-  confirm_clicks: true
-  close_on_confirm: true
-  sounds:
-    open: UI_BUTTON_CLICK
-    confirm: ENTITY_EXPERIENCE_ORB_PICKUP
+## 🕹️ Commands & Permissions
 
-death:
-  drop_percent: 0.5                # 50% on death
-  respect_keep_inventory: true
-  worlds_excluded: []              # e.g., ["creative"]
+### Player
+- `/pouch` — Open the Pouch GUI.  
+  **Permission:** `featherfallbank.pouch`
+- `/pouch drop <amount|all>` — Drop Shillings from your pouch as items.  
+  **Permission:** `featherfallbank.pouch.drop`
+- `/treasury` — Open the Treasury (bank) GUI.  
+  **Permission:** `featherfallbank.treasury`
 
-safe_zones:
-  enable_worldguard: true
-  regions: ["OwlRun", "Spawn"]     # 0% drop here
+### Admin
+- `/treasuryadmin set <player> <amount>` — Set Treasury balance.  
+  **Permission:** `featherfallbank.admin.set`
+- `/treasuryadmin give <player> <amount>` — Add to Treasury.  
+  **Permission:** `featherfallbank.admin.give`
+- `/treasuryadmin take <player> <amount>` — Remove from Treasury.  
+  **Permission:** `featherfallbank.admin.take`
+- `/treasuryadmin top [page]` — Leaderboard of Treasury balances.  
+  **Permission:** `featherfallbank.admin.top`
+- `/treasuryadmin reload` — Reload config/messages.  
+  **Permission:** `featherfallbank.admin.reload`
+
+> You can grant `featherfallbank.admin.*` to trusted staff.
+
+---
+
+## 🔒 Mechanics at a Glance
+- **Death Drops:** By default, 50% of *current Pouch* is dropped as Shilling items on any death.
+- **Safe Zones:** In configured regions (e.g., `owlrun`), deaths **do not** drop pouch contents.
+- **Keep Inventory:** If `keepInventory` is active and `respect-keep-inventory: true`, no pouch drops occur.
+- **Pickup UX:** Action‑bar feedback confirms how much was added to the Pouch.
+- **Anti‑Abuse:** Hopper‑proof pouch items, safe despawn handling, and GUI click protection.
+
+---
+
+## 🧩 Compatibility
+- **Vault** economy bridge ensures broad support with shops, ranks, and other economy‑aware plugins.
+- If migrating from another economy, use admin commands to seed balances and set a **starting-balance** for new players.
+
+---
+
+## 🧭 Roadmap
+- Citizens teller NPCs
+- PlaceholderAPI placeholders
+- MySQL/PostgreSQL storage option
+- Audit log for deposits/withdrawals
+
+---
+
+## 🧑‍💻 Building from Source
+- **Java 21** recommended
+- Build with **Maven**: `mvn -q -DskipTests package` (or Gradle if you prefer)
+- Output jar: `target/FeatherfallBank-<version>.jar`
+
+Project layout:
 ```
-Full config is generated at `/plugins/FeatherfallBank/config.yml.`
+.
+├─ src/main/java/
+├─ src/main/resources/
+│  └─ plugin.yml
+├─ pom.xml
+└─ README.md
+```
 
 ---
 
-## 🔐 **Commands & Permissions**
-
-**Player**
-- `/pouch` → Displays Pouch Balance
-- `/pouch drop <amount>` → Drops Specified Amount from Pouch
-
----
-
-## 🧩 PlaceholderAPI
-
-`%featherfallbank_balance%` → formatted balance
-
-`%featherfallbank_currency%` → “Shillings”
-
----
-
-## 🗺️ Roadmap
-
-- Physical currency notes (NBT-secured), pouch item toggle
-- Citizens banker NPC support
-- Player-to-player payment gesture (drop/pay)
-- MySQL/H2 profiles
-- Hologram leaderboard integration
+## 🤝 Contributing
+PRs and issues welcome! Please open an issue for feature requests or bugs and follow the style of existing code.
 
 ---
 
 ## 📜 License
-
-All Rights Reserved
-
-KerricB 2025
-
----
-
-## 🖼️ Screenshots
-
-**Treasury (bell) GUI**
-
-![img_1.png](img_1.png)
-
-**Balances** 
-
-![img_2.png](img_2.png)
-
-**Deposit Menu**
-
-![img_3.png](img_3.png)
-
-**Withdraw Menu**
-
-![img_4.png](img_4.png)
-
----
-
-## 🙏 Credits
-**Author:** ItsEminus (KerricB)
-
-Built for OwlCraft with love and lots of test deaths. 🦉
-
-
-
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+```
