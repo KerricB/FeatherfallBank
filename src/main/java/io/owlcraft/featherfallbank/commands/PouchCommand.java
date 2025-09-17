@@ -2,6 +2,7 @@ package io.owlcraft.featherfallbank.commands;
 
 import io.owlcraft.featherfallbank.FeatherfallBankPlugin;
 import io.owlcraft.featherfallbank.ui.ItemBuilder;
+import io.owlcraft.featherfallbank.util.DropUtil;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Material;
@@ -10,7 +11,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -81,18 +81,15 @@ public final class PouchCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            // Keys for item/entity tagging
-            NamespacedKey keyCurrency   = new NamespacedKey(FeatherfallBankPlugin.get(), "ffb_currency");
-            NamespacedKey keyDropper    = new NamespacedKey(FeatherfallBankPlugin.get(), "ffb_dropper");
-            NamespacedKey keyBlockUntil = new NamespacedKey(FeatherfallBankPlugin.get(), "ffb_block_until");
+            // Item tag for your PickupListener to recognize "money" items
+            NamespacedKey keyCurrency = new NamespacedKey(FeatherfallBankPlugin.get(), "ffb_currency");
 
-            // Drop as tagged Shilling nuggets near the player, stacking up to 64
+            // Split into stacks of 64, create the nugget item, and drop it IN FRONT with a short pickup guard
             long remaining = amount;
             while (remaining > 0) {
                 int stack = (int) Math.min(remaining, 64);
 
                 ItemStack is = new ItemStack(Material.GOLD_NUGGET, stack);
-                // Tag the ITEM so PickupListener can recognize it
                 ItemMeta meta = is.getItemMeta();
                 if (meta != null) {
                     meta.setDisplayName(ItemBuilder.color("&eShilling"));
@@ -104,10 +101,8 @@ public final class PouchCommand implements CommandExecutor, TabCompleter {
                     is.setItemMeta(meta);
                 }
 
-                // Spawn the item and tag the ENTITY so DropPickupGuardListener can delay pickup by dropper
-                Item dropped = p.getWorld().dropItemNaturally(p.getLocation().add(0, 0.5, 0), is);
-                dropped.getPersistentDataContainer().set(keyDropper, PersistentDataType.STRING, p.getUniqueId().toString());
-                dropped.getPersistentDataContainer().set(keyBlockUntil, PersistentDataType.LONG, System.currentTimeMillis() + 1200L); // ~1.2s
+                // ⬇️ This is the whole fix: forward offset + gentle push + self-pickup block
+                DropUtil.dropInFront(plugin, p, is);
 
                 remaining -= stack;
             }

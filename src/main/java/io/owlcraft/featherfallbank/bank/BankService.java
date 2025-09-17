@@ -5,6 +5,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -38,6 +40,16 @@ public class BankService {
     /** Convenience overloads. */
     public long getBank(String uuidStr) { return getBank(UUID.fromString(uuidStr)); }
     public long getBank(Player player)   { return getBank(player.getUniqueId()); }
+
+    /** Leaderboard (safe wrapper). */
+    public List<BankLedgerDao.TopBalance> getTopBalances(int limit) {
+        try {
+            return dao.getTopBalances(limit);
+        } catch (SQLException e) {
+            plugin.getLogger().warning("[Bank] topBalances failed: " + e.getMessage());
+            return Collections.emptyList();
+        }
+    }
 
     /* ===================== Mutations (low level) ===================== */
 

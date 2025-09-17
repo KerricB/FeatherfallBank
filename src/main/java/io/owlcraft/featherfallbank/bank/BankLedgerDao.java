@@ -2,6 +2,8 @@ package io.owlcraft.featherfallbank.bank;
 
 import java.io.File;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -133,6 +135,42 @@ public class BankLedgerDao implements AutoCloseable {
             ps.setString(1, uuidStr);
             ps.executeUpdate();
         }
+    }
+
+    /* ======================= Leaderboard ======================= */
+
+    /** Simple DTO for leaderboard rows. */
+    public static final class TopBalance {
+        private final UUID uuid;
+        private final long amount;
+        public TopBalance(UUID uuid, long amount) { this.uuid = uuid; this.amount = amount; }
+        public UUID uuid() { return uuid; }
+        public long amount() { return amount; }
+    }
+
+    /**
+     * Returns top N balances ordered descending. If limit <= 0, defaults to 10.
+     */
+    public List<TopBalance> getTopBalances(int limit) throws SQLException {
+        int lim = (limit <= 0) ? 10 : limit;
+        List<TopBalance> out = new ArrayList<>();
+        try (PreparedStatement ps = db.prepareStatement(
+                "SELECT player, amount FROM bank_ledger ORDER BY amount DESC LIMIT ?")) {
+            ps.setInt(1, lim);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String uuidStr = rs.getString(1);
+                    long amt = rs.getLong(2);
+                    try {
+                        UUID id = UUID.fromString(uuidStr);
+                        out.add(new TopBalance(id, amt));
+                    } catch (IllegalArgumentException ignored) {
+                        // skip malformed uuids
+                    }
+                }
+            }
+        }
+        return out;
     }
 
     @Override
